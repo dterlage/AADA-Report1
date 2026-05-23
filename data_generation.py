@@ -19,7 +19,7 @@ def generate_data(n_sample:int,
                   n_outliers:int,
                   d:int,
                   std:float = 1.5,
-                  cluster_box:float = 15.0,
+                  range:float = 15.0,
                   dist_outliers:float = 3.0,
                   random_state:int = 42):
     """
@@ -28,7 +28,7 @@ def generate_data(n_sample:int,
     :param n_outliers: number of outliers to generate
     :param d: dimensions
     :param std: standard deviation of generated clusters
-    :param cluster_box: Size in which clusters and points can be created
+    :param range: Size in which clusters and points can be created
     #:param outlier_range: range of outliers (square around (0,0))
     :param dist_outliers: Multiplied by std of generated clusters to provide minimum outlier distance
 
@@ -42,12 +42,12 @@ def generate_data(n_sample:int,
     X_clusters, _, centers = make_blobs(
         n_samples=n_sample - n_outliers, centers=k_centers,
         n_features=d, cluster_std=std,
-        center_box=(-cluster_box, cluster_box),
+        center_box=(-range, range),
         random_state=random_state, return_centers=True
     )
 
     # Create candidate outliers and compute distance to nearest centroids
-    candidates = np.random.uniform(-cluster_box, cluster_box, (n_outliers * 40, d))
+    candidates = np.random.uniform(-range, range, (n_outliers * 40, d))
     distances = np.min(np.linalg.norm(
         candidates[:, np.newaxis, :] - centers[np.newaxis, :, :],  # (n_candidates, k_centers, d)
         axis=2

@@ -55,57 +55,53 @@ def run(path_in, path_out):
     return results
 
 
+def run_experiment(name, param_list, sample, k, n_outliers, d, std, range, min_dist, seed, param_type='dist'):
+    results = {}
+
+    for param in param_list:
+        n_out    = round(sample * 0.01 * param) if param_type == 'pct' else n_outliers
+        filename = "data_in/{0}_in/{0}_{1}.in".format(name, param)
+        outfile  = "data_out/{0}_out/{0}_{1}.out".format(name, param)
+
+        data = generate_data(sample, k, n_out, d, std, range, min_dist, seed)
+        write_input_file(filename, data, k)
+        results[param] = run(filename, outfile)
+
+    return results
+
+
+def plot_experiment(name, param, results):
+    gonzalez = './data_out/{0}_out/{0}_{1}.out_Gonzalez'.format(name, param)
+    kmeans   = './data_out/{0}_out/{0}_{1}.out_kmeans++'.format(name, param)
+    plot_two(gonzalez, kmeans, results[param])
+
+
 
 
 ### Experimental setup
-# Base case: n=2500, k=5, outliers=500, d=2, std=1.5, clusterbox=15.0, dist=3
-k = 5
+# Base case: n=2500, k=5, outliers=500, d=2, std=1.5, range=15.0, dist=3
+k = 5  # Cluster count
 
 
-## Exp 1: Vary over distance outliers
-distances = [1.0, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0]      # * sd of created clusters
-results_e1 = {}
+# Exp 1: Vary over distance
+distances  = [1.0, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0]
+results_e1 = run_experiment('exp1', distances, 2500, k, 500, 2, 1.5, 15.0, 3.0, 421, param_type='dist')
 
-for i in distances:
-    e1_data = generate_data(2500, k, 500, 2, 1.5, 15.0, i, 421)
-    write_input_file("data_in/exp1_in/E1_{:.1f}dist.in".format(i), e1_data, k)
-    results_e1[i] = run("data_in/exp1_in/E1_{:.1f}dist.in".format(i), "data_out/exp1_out/E1_{}dist.out".format(i))
-
-# Request a plot
-req_plot = 1.0
-plot_two('./data_out/exp1_out/E1_{:.1f}dist.out_Gonzalez'.format(req_plot),
-         './data_out/exp1_out/E1_{:.1f}dist.out_kmeans++'.format(req_plot),
-          results_e1[req_plot])
+plot_experiment('exp1', 1.0, results_e1) # Change param to see diff graph
 
 
 
+# Exp 2: Vary over proportion of outliers
+proportions = [5, 10, 25, 50, 75, 90, 95]
+results_e2  = run_experiment('exp2', proportions, 2500, k, None, 2, 1.5, 15.0, 3.0, 422, param_type='pct')
 
-## Exp 2: Vary over percentage of outliers
-proportion = [5, 10, 25, 50, 75, 90, 95]     # in %
-results_e2 = {}
-
-for i in proportion:
-    sample = 2500
-    outliers = round(sample * 0.01 * i)
-    e2_data = generate_data(sample, k, outliers, 2, 1.5, 15.0, 3, 422)
-    write_input_file("data_in/exp2_in/E2_{}%.in".format(i), e2_data, k)
-    results_e2[i] = run("data_in/exp2_in/E2_{}%.in".format(i), "data_out/exp2_out/E2_{}%.out".format(i))
-
-# Request a plot
-req_plot2 = 5
-plot_two('./data_out/exp2_out/E2_{}%.out_Gonzalez'.format(req_plot2),
-         './data_out/exp2_out/E2_{}%.out_kmeans++'.format(req_plot2),
-          results_e2[req_plot2])
+plot_experiment('exp2', 5, results_e2) # Change param to see diff graph
 
 
 
-## Exp 3: impact of 3d (larger cluster box and std used to spread out points more
-e3_data = generate_data(2500, k, 500, 3, 3, 25.0, 3, 423)
-write_input_file("data_in/exp3_in/E3.in", e3_data, k)
-results_e3 = run("data_in/exp3_in/E3.in", "data_out/exp3_out/E3.out")
+# Exp 3: Repeat Experiment 1 and 2 in 3D
+results_e3_dist = run_experiment('exp3_dist', distances,   2500, k, 500,  3, 3, 25.0, 3.0, 423, param_type='dist')
+results_e3_pct  = run_experiment('exp3_pct',  proportions, 2500, k, None, 3, 3, 25.0, 3.0, 424, param_type='pct')
 
-
-plot_one('./data_out/exp3_out/E3.out_Gonzalez')
-
-
-# Optional experiments: Repeat 1 and 2 in 3d, sparse clusters
+# Plot examples
+plot_one("data_out/exp3_dist_out/exp3_dist_1.0.out_Gonzalez") # Change path to see diff graph
