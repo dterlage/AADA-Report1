@@ -53,13 +53,16 @@ def cluster(input_obj, init):
     Perform k-means clustering on the input set
 
     :param input_obj:   the input object
-    :return:            a list of k centroids in the plane
+    :param init:        the function with input_obj within calculating the initial centroids
+    :return:            a list of k centroids in the plane and the iteration count
     """
     centroids = init
+    count_i = 0     # Keeps track of the number of iterations it takes from the initialization till the final centroids are found
 
     change = True
     while change:
         change = False
+        count_i += 1      
 
         for p in input_obj.cluster_points:
             near_cluster = int(np.argmin([p.sq_distance_to(c) for c in centroids]))
@@ -75,6 +78,6 @@ def cluster(input_obj, init):
                     centroid.add(p)
                 centroid.div(len(assigned_points))
 
-    return centroids
+    return centroids, count_i
 
 
