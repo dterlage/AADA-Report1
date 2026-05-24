@@ -1,5 +1,7 @@
 import sys
 import time
+import random
+import numpy as np
 import pandas as pd
 from dataset import *
 from data_generation import *
@@ -103,6 +105,10 @@ def plot_experiment(name, param, results):
 
 
 ### Experimental setup
+# Set global seed for reproducibility
+random.seed(420)
+np.random.seed(420)
+
 # Base case: n=2500, k=5, outliers=500, d=2, std=1.5, range=15.0, dist=3
 k = 5  # Cluster count
 
