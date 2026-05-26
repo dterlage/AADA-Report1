@@ -2,7 +2,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-df = pd.read_csv('experiments_results.csv')
+df = pd.read_csv('experiments_results_rep.csv')
 
 df['distances'] = pd.to_numeric(df['distances'])
 df['proportions'] = pd.to_numeric(df['proportions'])
@@ -29,7 +29,7 @@ palette = {
 #     Total mean squared distance vs Distances and Proportions
 # //
 
-fig, axes = plt.subplots(2, 1, figsize=(14, 12), sharey=False)
+fig, axes = plt.subplots(1, 2, figsize=(20, 8), sharey=False)
 
 sns.lineplot(
     data=subset_dist,
@@ -43,7 +43,7 @@ sns.lineplot(
     ax=axes[0]
 )
 axes[0].set_title('Total mean squared distance vs Distances')
-axes[0].set_xlabel('Distance')
+axes[0].set_xlabel('Distance of the outliers')
 axes[0].set_ylabel('Total mean squared distance')
 axes[0].legend(title='Algorithm + Dimension')
 axes[0].set_ylim(ymax=700000)  
@@ -67,7 +67,7 @@ axes[1].set_ylim(ymax=700000)
 axes[1].set_xticks([5, 10, 25, 50, 75, 90, 95])  
 
 plt.tight_layout()
-plt.savefig('graphs/score.png', dpi=300)
+plt.savefig('graphs/score_horizontal_avg.png', dpi=300)
 print(f'Saved total mean squared distance plot')
 plt.show()
 
@@ -75,7 +75,7 @@ plt.show()
 #     Mean squared distance divided by number of points vs Distances and Proportions
 # //
 
-fig, axes = plt.subplots(2, 1, figsize=(14, 12), sharey=False)
+fig, axes = plt.subplots(1, 2, figsize=(20, 8), sharey=False)
 
 sns.lineplot(
     data=subset_dist,
@@ -89,7 +89,7 @@ sns.lineplot(
     ax=axes[0]
 )
 axes[0].set_title('Mean squared distance divided by number of points vs Distances')
-axes[0].set_xlabel('Distance')
+axes[0].set_xlabel('Distance of the outliers')
 axes[0].set_ylabel('Mean squared distance divided by number of points')
 axes[0].legend(title='Algorithm + Dimension')
 axes[0].set_ylim(ymax=300)  
@@ -113,7 +113,7 @@ axes[1].set_ylim(ymax=300)
 axes[1].set_xticks([5, 10, 25, 50, 75, 90, 95])  
 
 plt.tight_layout()
-plt.savefig('graphs/avg_score.png', dpi=300)
+plt.savefig('graphs/avg_score_horizontal_avg.png', dpi=300)
 print(f'Saved total mean squared distance plot')
 plt.show()
 
@@ -122,7 +122,7 @@ plt.show()
 #     Iterations vs Distances and Proportions
 # //
 
-fig, axes = plt.subplots(2, 1, figsize=(14, 12), sharey=False)
+fig, axes = plt.subplots(1, 2, figsize=(20, 8), sharey=False)
 
 sns.lineplot(
     data=subset_dist,
@@ -136,10 +136,10 @@ sns.lineplot(
     ax=axes[0]
 )
 axes[0].set_title('Iterations vs Distances')
-axes[0].set_xlabel('Distance')
+axes[0].set_xlabel('Distance of the outliers')
 axes[0].set_ylabel('Iterations')
 axes[0].legend(title='Algorithm + Dimension')
-axes[0].set_ylim(ymax=80)  
+axes[0].set_ylim(ymax=40)  
 
 sns.lineplot(
     data=subset_pct,
@@ -156,11 +156,11 @@ axes[1].set_title('Iterations vs Proportions')
 axes[1].set_xlabel('Proportion of Outliers (%)')
 axes[1].set_ylabel('Iterations')
 axes[1].legend(title='Algorithm + Dimension')
-axes[1].set_ylim(ymax=80)  
+axes[1].set_ylim(ymax=40)  
 axes[1].set_xticks([5, 10, 25, 50, 75, 90, 95])  
 
 plt.tight_layout()
-plt.savefig('graphs/iterations.png', dpi=300)
+plt.savefig('graphs/iterations_horizontal_avg.png', dpi=300)
 print(f'Saved iterations plot')
 plt.show()
 
