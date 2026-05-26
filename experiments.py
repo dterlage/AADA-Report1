@@ -63,17 +63,43 @@ def run(path_in, path_out):
     return results
 
 
-def run_experiment(name, param_list, sample, k, n_outliers, d, std, range, min_dist, seed, param_type='dist'):
+def run_experiment(name, param_list, sample, k, n_outliers, d, std, space_range, min_dist, seed, param_type='dist', repeats=100):
+    """Run experiments for each parameter multiple times and average the results.
+
+    :param repeats: number of repetitions per parameter
+    """
     results = {}
 
     for param in param_list:
+        accum = {}       # accumulator for metrics per algorithm
+
+        # compute constants once per parameter 
         n_out    = round(sample * 0.01 * param) if param_type == 'pct' else n_outliers
         filename = "data_in/{0}_in/{0}_{1}.in".format(name, param)
         outfile  = "data_out/{0}_out/{0}_{1}.out".format(name, param)
 
-        data = generate_data(sample, k, n_out, d, std, range, min_dist, seed)
-        write_input_file(filename, data, k)
-        results[param] = run(filename, outfile)
+        for r in range(repeats):     # Per repitition, use a different seed to make the results more reliable
+            data = generate_data(sample, k, n_out, d, std, space_range, min_dist, seed + r)
+            write_input_file(filename, data, k)
+            run_results = run(filename, outfile)
+
+            if run_results is None:
+                continue
+
+            for algorithm, metrics in run_results.items(): 
+                if algorithm not in accum:
+                    accum[algorithm] = [0.0, 0.0, 0.0]
+                # Summing  up the metrices across repetitions for each algorithm
+                accum[algorithm][0] += metrics[0]
+                accum[algorithm][1] += metrics[1]
+                accum[algorithm][2] += metrics[2]
+
+        # compute averages across repetitions
+        avg_results = {}
+        for algorithm, sums in accum.items():
+            avg_results[algorithm] = [sums[0] / repeats, sums[1] / repeats, sums[2] / repeats]
+
+        results[param] = avg_results
 
     return results
 
@@ -105,9 +131,9 @@ def plot_experiment(name, param, results):
 
 
 ### Experimental setup
-# Set global seed for reproducibility
-random.seed(420)
-np.random.seed(420)
+# Set seed for reproducibility
+random.seed(2026)
+np.random.seed(2026)
 
 # Base case: n=2500, k=5, outliers=500, d=2, std=1.5, range=15.0, dist=3
 k = 5  # Cluster count
@@ -148,5 +174,5 @@ all_records.extend(build_experiment_records(results_e3_pct, 3, 'pct'))
 df = pd.DataFrame(all_records, columns=['algorithm', 'dimension', 'type', 'distances', 'proportions', 'score', 'avg_score', 'iterations'])
 
 # Saving the dataframe to a csv
-df.to_csv('experiments_results.csv')
+df.to_csv('experiments_results_rep.csv')
 print(f"Saved to experiments_results.csv")
